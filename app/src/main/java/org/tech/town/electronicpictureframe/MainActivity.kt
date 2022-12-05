@@ -1,7 +1,9 @@
 package org.tech.town.electronicpictureframe
 
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
@@ -31,6 +33,8 @@ class MainActivity : AppCompatActivity() {
         }
 
     }
+
+    private val imageUriList: MutableList<Uri> = mutableListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -75,11 +79,10 @@ class MainActivity : AppCompatActivity() {
 
         when (requestCode) {
             1000 -> {
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     //권한이 부여 되었을 때
                     navigatePhotos()
-                }
-                else{
+                } else {
                     Toast.makeText(this, "권한을 거부하셨습니다.", Toast.LENGTH_SHORT).show()
                 }
 
@@ -98,6 +101,34 @@ class MainActivity : AppCompatActivity() {
         startActivityForResult(intent, 2000)
     }
 
+    //startActivityForResult 콜백
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (resultCode != Activity.RESULT_OK){
+            return
+        }
+
+        when (requestCode){
+            2000->{
+                val selectedImageUri: Uri? = data?.data
+                if (selectedImageUri != null){
+                    if (imageUriList.size == 6){
+                        Toast.makeText(this, "이미 사진이 꽉 찼습니다.", Toast.LENGTH_SHORT).show()
+                        return
+                    }
+                    imageUriList.add(selectedImageUri)
+                    imageViewList[imageUriList.size-1].setImageURI(selectedImageUri)
+                }else{
+                    Toast.makeText(this, "사진을 가져오지 못했습니다.", Toast.LENGTH_SHORT).show()
+                }
+            }
+            else->{
+                Toast.makeText(this, "사진을 가져오지 못했습니다.", Toast.LENGTH_SHORT).show()
+            }
+
+        }
+    }
 
     private fun showPermissionContextPopup() {
         AlertDialog.Builder(this)
