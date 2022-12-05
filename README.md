@@ -6,5 +6,5 @@
 * Activity Lifecycle
 
 * Content Provider  
-    *SAF(Storage Access Framework)
+    * SAF(Storage Access Framework)
  
