@@ -19,7 +19,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val startPhotoFrameModeButton: Button by lazy {
-        findViewById<Button>(androidx.coordinatorlayout.R.id.start)
+        findViewById<Button>(R.id.startPhotoFrameModeButton)
     }
 
     private val imageViewList: List<ImageView> by lazy {
@@ -44,6 +44,7 @@ class MainActivity : AppCompatActivity() {
         initStartPhotoFrameModeButton()
     }
 
+
     private fun initAddPhotoButton() {
         addPhotoButton.setOnClickListener {
             when {
@@ -66,6 +67,18 @@ class MainActivity : AppCompatActivity() {
                     )
                 }
             }
+        }
+    }
+
+    private fun initStartPhotoFrameModeButton() {
+        startPhotoFrameModeButton.setOnClickListener {
+            val intent = Intent(this, PhotoFrameActivity::class.java)
+            imageUriList.forEachIndexed { index, uri ->
+                intent.putExtra("photo$index", uri.toString())
+            }
+            //몇번째 photo index 까지 getExtra 해야하는지 알려주기 위해
+            intent.putExtra("photoListSize", imageUriList.size)
+            startActivity(intent)
         }
     }
 
@@ -105,25 +118,25 @@ class MainActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        if (resultCode != Activity.RESULT_OK){
+        if (resultCode != Activity.RESULT_OK) {
             return
         }
 
-        when (requestCode){
-            2000->{
+        when (requestCode) {
+            2000 -> {
                 val selectedImageUri: Uri? = data?.data
-                if (selectedImageUri != null){
-                    if (imageUriList.size == 6){
+                if (selectedImageUri != null) {
+                    if (imageUriList.size == 6) {
                         Toast.makeText(this, "이미 사진이 꽉 찼습니다.", Toast.LENGTH_SHORT).show()
                         return
                     }
                     imageUriList.add(selectedImageUri)
-                    imageViewList[imageUriList.size-1].setImageURI(selectedImageUri)
-                }else{
+                    imageViewList[imageUriList.size - 1].setImageURI(selectedImageUri)
+                } else {
                     Toast.makeText(this, "사진을 가져오지 못했습니다.", Toast.LENGTH_SHORT).show()
                 }
             }
-            else->{
+            else -> {
                 Toast.makeText(this, "사진을 가져오지 못했습니다.", Toast.LENGTH_SHORT).show()
             }
 
@@ -143,7 +156,5 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    private fun initStartPhotoFrameModeButton() {
 
-    }
 }
