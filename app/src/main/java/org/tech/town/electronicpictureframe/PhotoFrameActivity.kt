@@ -3,7 +3,9 @@ package org.tech.town.electronicpictureframe
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.ImageView
+import java.util.*
 import kotlin.concurrent.timer
 
 class PhotoFrameActivity : AppCompatActivity() {
@@ -12,11 +14,13 @@ class PhotoFrameActivity : AppCompatActivity() {
 
     private var currentPosition = 0
 
-    private val photoImageView: ImageView by lazy{
+    private var timer: Timer? = null
+
+    private val photoImageView: ImageView by lazy {
         findViewById<ImageView>(R.id.photoImageView)
     }
 
-    private val backgroundPhotoImageView: ImageView by lazy{
+    private val backgroundPhotoImageView: ImageView by lazy {
         findViewById<ImageView>(R.id.backgroundPhotoImageView)
     }
 
@@ -25,12 +29,11 @@ class PhotoFrameActivity : AppCompatActivity() {
         setContentView(R.layout.activity_photo_frame)
 
         getPhotoUriFromIntent()
-        startTimer()
     }
 
     private fun getPhotoUriFromIntent() {
         val size = intent.getIntExtra("photoListSize", 0)
-        for (i in 0..size){
+        for (i in 0..size) {
             //getStringExtra 가 null 이 아닐경우만 실행
             intent.getStringExtra("photo$i")?.let {
                 photoList.add(Uri.parse(it))
@@ -39,8 +42,10 @@ class PhotoFrameActivity : AppCompatActivity() {
     }
 
     private fun startTimer() {
-        timer(period = 5000){
+        timer = timer(period = 5000) {
             runOnUiThread {
+
+                Log.d("PhotoFrame", "5초 지나감")
                 val current = currentPosition
                 val next = if (photoList.size <= currentPosition + 1) 0 else currentPosition + 1
 
@@ -57,5 +62,24 @@ class PhotoFrameActivity : AppCompatActivity() {
                 currentPosition = next
             }
         }
+    }
+
+    //액티비티가 background 로 들어가서 더이상 사용되지 않을 때는 timer 종료
+    override fun onStop() {
+        super.onStop()
+        Log.d("PhotoFrame", "onStop timer cancel")
+        timer?.cancel()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        Log.d("PhotoFrame", "onStart timer start")
+        startTimer()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d("PhotoFrame", "onDestroy timer cancel")
+        timer?.cancel()
     }
 }
